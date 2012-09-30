@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="MittSnakeGameView"
+		xmlns:shapes="shapes.*"
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			protected function upButton_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				square.y = square.y - square.height;
+			}
+			
+			protected function downButton_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				square.y = square.y + square.height;
+				
+			}
+			
+			protected function leftButton_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				square.x = square.x - square.width;
+				
+			}
+			
+			protected function rightButton_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				square.x = square.x + square.width;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+	
+	<s:VGroup width="100%" height="100%" horizontalAlign="center">
+		<s:Group width="100%" height="90%">
+			<shapes:MyCircleMXML x="100" y="100" id="square"/>
+		</s:Group>
+		<s:TileGroup width="35%" horizontalAlign="center" requestedColumnCount="1"
+					 requestedRowCount="2" verticalAlign="middle" paddingBottom="5">
+			<s:Button id="upButton" width="70" label="Up" click="upButton_clickHandler(event)"/>
+			<s:HGroup>
+				<s:Button id="leftButton" width="70" label="Left"
+						  click="leftButton_clickHandler(event)"/>
+				<s:Button id="downButton" width="70" label="Down"
+						  click="downButton_clickHandler(event)"/>
+				<s:Button id="rightButton" width="70" label="Right"
+						  click="rightButton_clickHandler(event)"/>
+			</s:HGroup>	
+		</s:TileGroup>
+	</s:VGroup>
+</s:View>
