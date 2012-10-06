@@ -7,33 +7,32 @@
 		<s:VerticalLayout/>
 	</s:layout>
 	
-	
 	<fx:Script>
 		<![CDATA[
 			protected function upButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				square.y = square.y - square.height;
+				mittFace.y = mittFace.y - mittFace.height;
 			}
 			
 			protected function downButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				square.y = square.y + square.height;
+				mittFace.y = mittFace.y + mittFace.height;
 				
 			}
 			
 			protected function leftButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				square.x = square.x - square.width;
+				mittFace.x = mittFace.x - mittFace.width;
 				
 			}
 			
 			protected function rightButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				square.x = square.x + square.width;
+				mittFace.x = mittFace.x + mittFace.width;
 			}
 			
 		]]>
@@ -46,7 +45,8 @@
 	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
 		<s:Group width="100%" height="90%">
-			<shapes:MyCircleMXML x="100" y="100" id="square"/>
+			<s:Image x="100" y="100" width="30" height="30" source="@Embed('assets/mittFace.png')" id="mittFace"/>
+			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
 		</s:Group>
 		<s:TileGroup width="35%" horizontalAlign="center" requestedColumnCount="1"
 					 requestedRowCount="2" verticalAlign="middle" paddingBottom="5">
