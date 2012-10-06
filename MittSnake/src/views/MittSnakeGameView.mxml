@@ -2,37 +2,174 @@
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		xmlns:s="library://ns.adobe.com/flex/spark" title="MittSnakeGameView"
 		xmlns:shapes="shapes.*"
-		xmlns:mx="library://ns.adobe.com/flex/mx">
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+
+		creationComplete="initApp()">
 	<s:layout>
 		<s:VerticalLayout/>
 	</s:layout>
 	
 	<fx:Script>
 		<![CDATA[
+			import flashx.textLayout.formats.Float;
+			//
+			
+			var direction:String = "up";
+			var speed:Number = 2;
+			var gameOver:Boolean = false;
+			var gameWidth:int;
+			var gameHeight:int;
+			
+
+			
+			protected function initApp():void
+			{
+				// TODO initialize game score
+				
+				gameWidth = snakePit.width;
+				gameHeight = snakePit.height;
+				
+				var Low:int = 0;
+				var HighY:int = (gameHeight - mittFace.height) / mittFace.width;
+				var HighX:int = (gameWidth - mittFace.width) / mittFace.width;
+				mittFace.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;
+				mittFace.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;
+				
+				do {
+					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;	
+				} while (mittFace.y == moneyBag.y)
+					
+				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;				
+				
+				//mittFace.x = 0;
+				//mittFace.y = 0;
+				
+				// start in random direction
+				var rand:int = Math.floor(Math.random()*(1+4-1)+1);
+				switch (rand){
+					case 1:
+						direction = "up";
+						break;
+					case 2:
+						direction = "right";
+						break;
+					case 3:
+						direction = "down";
+						break;
+					case 4:
+						direction = "left";
+						break;
+				}
+				
+				
+//				var mc:MovieClip = new MovieClip();
+//				mc.graphics.beginFill(0xFF0000);
+//				mc.graphics.drawRect(0, 0, 30, 30);
+//				mc.graphics.endFill();
+//				mc.x = 0;
+//				mc.y = 0;
+//				stage.addChild(mc);
+				
+				stage.frameRate = speed;
+				
+				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+				
+				
+			}
+			
+			protected function onEnterFrame(event:Event):void{
+				
+				if (gameOver == true) {
+					// handle game over
+					gameOverLabel.visible = true;
+					return;
+					
+				}
+				
+
+
+				switch (direction){
+					case "up":
+						if (mittFace.y - mittFace.height < 0) {
+							gameOver = true;
+							gameOverLabel.visible = true;
+							break;
+						}
+						mittFace.y -= mittFace.height;
+						break;
+					case "right":
+						if (mittFace.x + mittFace.width > gameWidth) {
+							gameOver = true;
+							break;
+						}
+						mittFace.x += mittFace.width;
+						break;
+					case "down":
+						if (mittFace.y + mittFace.height > gameHeight) {
+							gameOver = true;
+							break;
+						}
+						mittFace.y += mittFace.height;
+						break;
+					case "left":
+						if (mittFace.x - mittFace.width < 0) {
+							gameOver = true;
+							break;
+						}
+						mittFace.x -= mittFace.width;
+						break;
+				}
+				
+				if (mittFace.y == moneyBag.y && mittFace.x == moneyBag.x) {
+					gameOverLabel.visible = true;
+					gameOverLabel.text = "ate money";
+					moveMoney();
+				}
+		    		
+				
+			}
+			
+			protected function moveMoney():void 
+			{
+				var oldBagY:int = moneyBag.y;
+				var Low:int = 0;
+				var HighY:int = (gameHeight - mittFace.height) / mittFace.width;
+				var HighX:int = (gameWidth- mittFace.width) / mittFace.width;
+				
+				do {
+					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;	
+				} while (mittFace.y == moneyBag.y || moneyBag.y == oldBagY)
+				
+				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
+				
+				// score += 1;
+				
+			}
+			
 			protected function upButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				mittFace.y = mittFace.y - mittFace.height;
+				direction = "up";
 			}
 			
 			protected function downButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				mittFace.y = mittFace.y + mittFace.height;
+				direction = "down";
 				
 			}
 			
 			protected function leftButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				mittFace.x = mittFace.x - mittFace.width;
+				direction = "left";
 				
 			}
 			
 			protected function rightButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				mittFace.x = mittFace.x + mittFace.width;
+				direction = "right";
 			}
 			
 		]]>
@@ -43,10 +180,13 @@
 	</fx:Declarations>
 
 	
+	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
-		<s:Group width="100%" height="90%">
-			<s:Image x="100" y="100" width="30" height="30" source="@Embed('assets/mittFace.png')" id="mittFace"/>
+		<s:Group width="100%" height="90%" id="snakePit">
+			<s:Image width="30" height="30" source="@Embed('assets/mittFace.png')" id="mittFace"/>
+			<s:Image width="30" height="30" source="@Embed('assets/moneyBag.png')" id="moneyBag"/>
 			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
+			<s:Label x="0" y="0" text="Game Over" visible="false" id="gameOverLabel"/>
 		</s:Group>
 		<s:TileGroup width="35%" horizontalAlign="center" requestedColumnCount="1"
 					 requestedRowCount="2" verticalAlign="middle" paddingBottom="5">
