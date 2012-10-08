@@ -12,15 +12,19 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.formats.Float;
-			//
 			
-			var direction:String = "up";
-			var speed:Number = 2;
-			var gameOver:Boolean = false;
-			var gameWidth:int;
-			var gameHeight:int;
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
 			
-
+			private var direction:String = "up";
+			private var previousDirection:String;
+			private var speed:Number = 2;
+			private var gameOver:Boolean = false;
+			private var gameWidth:int;
+			private var gameHeight:int;
+			private var snake:ArrayCollection = new ArrayCollection();
+			private var imageXLoc:ArrayCollection = new ArrayCollection();
+			private var imageYLoc:ArrayCollection = new ArrayCollection();
 			
 			protected function initApp():void
 			{
@@ -41,8 +45,9 @@
 					
 				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;				
 				
-				//mittFace.x = 0;
-				//mittFace.y = 0;
+				// TODO this is here for testing. remove
+				mittFace.x = 0;
+				mittFace.y = 0;
 				
 				// start in random direction
 				var rand:int = Math.floor(Math.random()*(1+4-1)+1);
@@ -60,37 +65,56 @@
 						direction = "left";
 						break;
 				}
-				
-				
-//				var mc:MovieClip = new MovieClip();
-//				mc.graphics.beginFill(0xFF0000);
-//				mc.graphics.drawRect(0, 0, 30, 30);
-//				mc.graphics.endFill();
-//				mc.x = 0;
-//				mc.y = 0;
-//				stage.addChild(mc);
+				// TODO this is here for testing. remove
+				direction = "right"; 
 				
 				stage.frameRate = speed;
+//				stage.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
+				snake.addItem(mittFace);
+				imageXLoc.addItem(50000);
+				imageYLoc.addItem(50000);
 				
 				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-				
-				
 			}
 			
-			protected function onEnterFrame(event:Event):void{
+			/* should add key listening for desktop use later */ 
+//			protected function reportKeyDown(event:KeyboardEvent):void {
+//				trace("KEY DOWN");
+//				if(event.charCode == Keyboard.UP) {
+//					direction = "up";
+//				}
+//				if(event.charCode == Keyboard.DOWN) {
+//					direction = "down";
+//				}
+//				if(event.charCode == Keyboard.LEFT) {
+//					direction = "left";
+//				}
+//				if(event.charCode == Keyboard.RIGHT) {
+//					direction = "right";
+//				}
+//			}
+			
+			protected function onEnterFrame(event:Event):void {
 				
 				if (gameOver == true) {
 					// handle game over
 					gameOverLabel.visible = true;
 					return;
-					
 				}
 				
-
-
+				// Save location of Mitt's face on enter frame
+				var initMittFaceX:uint = mittFace.x;
+				var initMittFaceY:uint = mittFace.y;
+				
+				// Save location of body tail so we know where to add new segments
+				var initTailX:uint = getTailX();
+				var initTailY:uint = getTailY();
+				
 				switch (direction){
 					case "up":
-						if (mittFace.y - mittFace.height < 0) {
+						if (mittFace.y - mittFace.height < 0 											// collision with top edge
+							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
+							{
 							gameOver = true;
 							gameOverLabel.visible = true;
 							break;
@@ -98,35 +122,80 @@
 						mittFace.y -= mittFace.height;
 						break;
 					case "right":
-						if (mittFace.x + mittFace.width > gameWidth) {
+						if (mittFace.x + mittFace.width > gameWidth 									// collision with right edge
+							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
+							{
 							gameOver = true;
 							break;
 						}
 						mittFace.x += mittFace.width;
 						break;
 					case "down":
-						if (mittFace.y + mittFace.height > gameHeight) {
+						if (mittFace.y + mittFace.height > gameHeight  									// collision with bottom edge
+							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
+							{
 							gameOver = true;
 							break;
 						}
 						mittFace.y += mittFace.height;
 						break;
 					case "left":
-						if (mittFace.x - mittFace.width < 0) {
+						if (mittFace.x - mittFace.width < 0  											// collision with left edge
+							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
+							{
 							gameOver = true;
 							break;
 						}
 						mittFace.x -= mittFace.width;
 						break;
 				}
+								
+				if(snake.length > 1) {
+					moveBody(initMittFaceX, initMittFaceY, 0);
+				}
 				
 				if (mittFace.y == moneyBag.y && mittFace.x == moneyBag.x) {
-					gameOverLabel.visible = true;
-					gameOverLabel.text = "ate money";
+					addPartToBody(initTailX, initTailY);
 					moveMoney();
 				}
 		    		
 				
+			}
+			
+			protected function moveBody(moveToX:uint, moveToY:uint, index:uint):void {
+				if(index >= snake.length - 1) {
+					return;
+				}
+				else {
+					var currentX:uint = (snake.getItemAt(index+1, 0) as Image).x;
+					var currentY:uint = (snake.getItemAt(index+1, 0) as Image).y;
+					(snake.getItemAt(index+1, 0) as Image).x = moveToX;
+					(snake.getItemAt(index+1, 0) as Image).y = moveToY;
+					imageXLoc.setItemAt(moveToX, index+1);
+					imageYLoc.setItemAt(moveToY, index+1);
+					moveBody(currentX, currentY, index + 1); 
+				}
+			}
+			
+			protected function addPartToBody(tailX:uint, tailY:uint):void {
+				var bodyPart:Image = new Image();
+				bodyPart.source = "assets/moneyBag.png"
+				bodyPart.x = tailX;
+				bodyPart.y = tailY;
+				bodyPart.height = 30;
+				bodyPart.width = 30;
+				snake.addItem(bodyPart);
+				imageXLoc.addItem(bodyPart.x);
+				imageYLoc.addItem(bodyPart.y);
+				snakePit.addElement(bodyPart);
+			}
+			
+			protected function getTailX():uint {
+				return (snake.getItemAt(snake.length-1, 0) as Image).x;
+			}
+			
+			protected function getTailY():uint {
+				return (snake.getItemAt(snake.length-1, 0) as Image).y;
 			}
 			
 			protected function moveMoney():void 
@@ -141,7 +210,6 @@
 				} while (mittFace.y == moneyBag.y || moneyBag.y == oldBagY)
 				
 				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
-				
 				// score += 1;
 				
 			}
@@ -149,12 +217,14 @@
 			protected function upButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
+				previousDirection = direction;
 				direction = "up";
 			}
 			
 			protected function downButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
+				previousDirection = direction;
 				direction = "down";
 				
 			}
@@ -162,6 +232,7 @@
 			protected function leftButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
+				previousDirection = direction;
 				direction = "left";
 				
 			}
@@ -169,6 +240,7 @@
 			protected function rightButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
+				previousDirection = direction;
 				direction = "right";
 			}
 			
@@ -178,13 +250,11 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-
-	
 	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
 		<s:Group width="100%" height="90%" id="snakePit">
 			<s:Image width="30" height="30" source="@Embed('assets/mittFace.png')" id="mittFace"/>
-			<s:Image width="30" height="30" source="@Embed('assets/moneyBag.png')" id="moneyBag"/>
+			<s:Image width="30" height="30" source="@Embed('assets/moneyBag.png')" id="moneyBag" />
 			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
 			<s:Label x="0" y="0" text="Game Over" visible="false" id="gameOverLabel"/>
 		</s:Group>
