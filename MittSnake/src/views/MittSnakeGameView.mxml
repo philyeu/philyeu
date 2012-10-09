@@ -15,10 +15,11 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ArrayList;
-			
+
+			private var bitmapMatrix:Matrix = new Matrix();
 			private var direction:String = "up";
 			private var previousDirection:String;
-			private var speed:Number = 2;
+			private var speed:Number = 4;
 			private var gameOver:Boolean = false;
 			private var gameWidth:int;
 			private var gameHeight:int;
@@ -29,8 +30,7 @@
 			protected function initApp():void
 			{
 				// TODO initialize game score
-				
-				gameWidth = snakePit.width;
+     			gameWidth = snakePit.width;
 				gameHeight = snakePit.height;
 				
 				var Low:int = 0;
@@ -76,7 +76,7 @@
 				
 				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			}
-			
+
 			/* should add key listening for desktop use later */ 
 //			protected function reportKeyDown(event:KeyboardEvent):void {
 //				trace("KEY DOWN");
@@ -179,7 +179,9 @@
 			
 			protected function addPartToBody(tailX:uint, tailY:uint):void {
 				var bodyPart:Image = new Image();
-				bodyPart.source = "assets/moneyBag.png"
+				bodyPart.source = "assets/moneyBag.png";
+				bodyPart.cacheAsBitmap = true;
+				bodyPart.cacheAsBitmapMatrix = bitmapMatrix;
 				bodyPart.x = tailX;
 				bodyPart.y = tailY;
 				bodyPart.height = 30;
