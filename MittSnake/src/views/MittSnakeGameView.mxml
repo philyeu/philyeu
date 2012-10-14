@@ -15,8 +15,12 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ArrayList;
-
-			private var bitmapMatrix:Matrix = new Matrix();
+			import mx.graphics.codec.JPEGEncoder;
+			import mx.graphics.codec.PNGEncoder;
+			
+			import spark.core.SpriteVisualElement;
+			
+			//private var bitmapMatrix:Matrix = new Matrix();
 			private var direction:String = "up";
 			private var previousDirection:String;
 			private var speed:Number = 4;
@@ -27,9 +31,28 @@
 			private var imageXLoc:ArrayCollection = new ArrayCollection();
 			private var imageYLoc:ArrayCollection = new ArrayCollection();
 			
+//			private var moneyBagByteArray:ByteArray = new ByteArray();
+//			
+//			private var myLoader:Loader = new Loader();
+//			
+//			private var myEncoder:PNGEncoder = new PNGEncoder();
+			
 			protected function initApp():void
 			{
+				
+				// do some image optimization for the body part money bags
+				moneyBag.cacheAsBitmapMatrix = moneyBag.transform.concatenatedMatrix;
+				moneyBag.cacheAsBitmap = true;
+				
+				mittFace.cacheAsBitmapMatrix = mittFace.transform.concatenatedMatrix;
+				mittFace.cacheAsBitmap = true;
+				
+				bodyPartImg.cacheAsBitmapMatrix = bodyPartImg.transform.concatenatedMatrix;
+				bodyPartImg.cacheAsBitmap = true;
+			
+				
 				// TODO initialize game score
+				
      			gameWidth = snakePit.width;
 				gameHeight = snakePit.height;
 				
@@ -178,26 +201,43 @@
 			}
 			
 			protected function addPartToBody(tailX:uint, tailY:uint):void {
+//				var bodyPart:Image = new Image();
+//				bodyPart.source = "assets/moneyBag.png";
+//				// do some caching
+//				bodyPart.cacheAsBitmapMatrix = bodyPart.transform.concatenatedMatrix;
+//				bodyPart.cacheAsBitmap = true;
+				
+				var buffer:BitmapData = new BitmapData ( bodyPartImg.width, bodyPartImg.height, true);
+				buffer.draw(bodyPartImg);
+				
+				var bodyPartBitmap:Bitmap = new Bitmap(buffer);
+				trace("body part width: " + bodyPartBitmap.width);
+				
 				var bodyPart:Image = new Image();
-				bodyPart.source = "assets/moneyBag.png";
+				bodyPart.source = bodyPartBitmap;
+				
+				bodyPart.cacheAsBitmapMatrix = bodyPart.transform.concatenatedMatrix;
 				bodyPart.cacheAsBitmap = true;
-				bodyPart.cacheAsBitmapMatrix = bitmapMatrix;
-				bodyPart.x = tailX;
-				bodyPart.y = tailY;
+				
 				bodyPart.height = 30;
 				bodyPart.width = 30;
+				bodyPart.x = tailX;
+				bodyPart.y = tailY;
+				
+				snakePit.addElement(bodyPart);
+				
 				snake.addItem(bodyPart);
 				imageXLoc.addItem(bodyPart.x);
 				imageYLoc.addItem(bodyPart.y);
-				snakePit.addElement(bodyPart);
+
 			}
 			
 			protected function getTailX():uint {
-				return (snake.getItemAt(snake.length-1, 0) as Image).x;
+				return snake.getItemAt(snake.length-1, 0).x;
 			}
 			
 			protected function getTailY():uint {
-				return (snake.getItemAt(snake.length-1, 0) as Image).y;
+				return snake.getItemAt(snake.length-1, 0).y;
 			}
 			
 			protected function moveMoney():void 
@@ -246,6 +286,7 @@
 				direction = "right";
 			}
 			
+			
 		]]>
 	</fx:Script>
 	
@@ -257,6 +298,7 @@
 		<s:Group width="100%" height="90%" id="snakePit">
 			<s:Image width="30" height="30" source="@Embed('assets/mittFace.png')" id="mittFace"/>
 			<s:Image width="30" height="30" source="@Embed('assets/moneyBag.png')" id="moneyBag" />
+			<s:Image visible="false" source="@Embed('assets/moneyBag.png')" id="bodyPartImg" />
 			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
 			<s:Label x="0" y="0" text="Game Over" visible="false" id="gameOverLabel"/>
 		</s:Group>
