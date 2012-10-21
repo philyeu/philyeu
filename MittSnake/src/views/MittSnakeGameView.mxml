@@ -19,7 +19,6 @@
 			
 			import spark.core.SpriteVisualElement;
 			
-			//private var bitmapMatrix:Matrix = new Matrix();
 			private var direction:String = "up";
 			private var previousDirection:String;
 			private var speed:Number = 4;
@@ -27,8 +26,7 @@
 			private var gameWidth:int;
 			private var gameHeight:int;
 			private var snake:ArrayCollection = new ArrayCollection();
-			private var imageXLoc:ArrayCollection = new ArrayCollection();
-			private var imageYLoc:ArrayCollection = new ArrayCollection();
+			private var bodyLocationArray:ArrayCollection = new ArrayCollection();
 			private var score:int = 0;
 			private var startDelay:uint = 0;
 			
@@ -40,6 +38,12 @@
 			
 			protected function initApp():void
 			{
+				// init snake pit height and width
+				//trace("width: " + this.width);
+				//trace("height: " + this.height);
+				//snakePit.height = this.height - navigation.height - ((this.height - navigation.height) % mittFace.width);
+				//snakePit.width = this.width - this.width % mittFace.width;
+				
 				startDelay = 0;
 				
 				// constrain height and width of snake pit
@@ -55,7 +59,7 @@
 				// set the game height/width
 				gameWidth = snakePit.width;
 				gameHeight = snakePit.height;
-				
+
 				// do some image optimization for the body part money bags
 				moneyBag.cacheAsBitmapMatrix = moneyBag.transform.concatenatedMatrix;
 				moneyBag.cacheAsBitmap = true;
@@ -99,8 +103,10 @@
 				stage.frameRate = speed;
 //				stage.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
 				snake.addItem(mittFace);
-				imageXLoc.addItem(50000);
-				imageYLoc.addItem(50000);
+				var imageLocArray:ArrayCollection = new ArrayCollection();
+				imageLocArray.addItem(5000);
+				imageLocArray.addItem(5000);
+				bodyLocationArray.addItem(imageLocArray);
 				
 				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			}
@@ -128,16 +134,6 @@
 					startDelay++;
 					return;
 				}
-				// handle game over
-				if (gameOver == true) {
-					// set game over label
-					gameOverLabel.text = "Game Over!\n" + 
-										"Net Worth:  $" + score + " Million\n"+
-										"Click to Play Again";
-					// display game over state
-					this.currentState = "GameOver";
-					return;
-				}
 				
 				// update the score label in the title bar
 				scoreBar.text = "Net Worth: $" + score + " Million";
@@ -150,44 +146,63 @@
 				var initTailX:uint = getTailX();
 				var initTailY:uint = getTailY();
 				
-				switch (direction){
-					case "up":
-						if (mittFace.y - mittFace.height < 0 											// collision with top edge
-							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
-							{
-							gameOver = true;
-							gameOverLabel.visible = true;
-							break;
-						}
-						mittFace.y -= mittFace.height;
+				// Collision Flag
+				var collision:Boolean = false;
+				
+				for each (var current:ArrayCollection in bodyLocationArray) {
+					var x:Number = current.getItemAt(0) as Number;
+					var y:Number = current.getItemAt(1) as Number;
+					if(mittFace.x == x && mittFace.y == y) {
+						collision = true;
 						break;
-					case "right":
-						if (mittFace.x + mittFace.width > gameWidth 									// collision with right edge
-							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
-							{
-							gameOver = true;
+					}
+				}
+				
+				if(!collision) {
+					switch (direction){
+						case "up":
+							if (mittFace.y - mittFace.height < 0 || (snake.length > 1 && previousDirection == "down")) {
+								gameOver = true;
+								break;
+							}
+							mittFace.y -= mittFace.height;
 							break;
-						}
-						mittFace.x += mittFace.width;
-						break;
-					case "down":
-						if (mittFace.y + mittFace.height > gameHeight  									// collision with bottom edge
-							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
-							{
-							gameOver = true;
+						case "right":
+							if (mittFace.x + mittFace.width*2 > gameWidth || (snake.length > 1 && previousDirection == "left")) {
+								gameOver = true;
+								break;
+							}
+							mittFace.x += mittFace.width;
 							break;
-						}
-						mittFace.y += mittFace.height;
-						break;
-					case "left":
-						if (mittFace.x - mittFace.width < 0  											// collision with left edge
-							|| (imageXLoc.contains(mittFace.x) && imageYLoc.contains(mittFace.y)))		// collision with self
-							{
-							gameOver = true;
+						case "down":
+							if (mittFace.y + mittFace.height*2 > gameHeight || (snake.length > 1 && previousDirection == "up")) {	
+								gameOver = true;
+								break;
+							}
+							mittFace.y += mittFace.height;
 							break;
-						}
-						mittFace.x -= mittFace.width;
-						break;
+						case "left":
+							if (mittFace.x - mittFace.width < 0 || (snake.length > 1 && previousDirection == "right")) {	
+								gameOver = true;
+								break;
+							}
+							mittFace.x -= mittFace.width;
+							break;
+					}
+				} else {
+					gameOver = true;
+				}
+				
+				// handle game over
+				if (gameOver == true) {
+					// set game over label
+					gameOverLabel.text = "Game Over!\n" + 
+						"Net Worth:  $" + score + " Million\n"+
+						"Click to Play Again";
+					// display game over state
+					this.currentState = "GameOver";
+					mittFace.removeEventListener(Event.ENTER_FRAME, onEnterFrame, false);
+					return;
 				}
 								
 				if(snake.length > 1) {
@@ -201,10 +216,7 @@
 					score += 1;
 					scoreBar.text = "Net Worth: $" + score + " Million";
 				}
-		    		
-				
 			}
-			
 			
 			protected function moveBody(moveToX:uint, moveToY:uint, index:uint):void {
 				if(index >= snake.length - 1) {
@@ -215,8 +227,10 @@
 					var currentY:uint = (snake.getItemAt(index+1, 0) as Image).y;
 					(snake.getItemAt(index+1, 0) as Image).x = moveToX;
 					(snake.getItemAt(index+1, 0) as Image).y = moveToY;
-					imageXLoc.setItemAt(moveToX, index+1);
-					imageYLoc.setItemAt(moveToY, index+1);
+					var imageLocArray:ArrayCollection = new ArrayCollection();
+					imageLocArray.addItem(moveToX);
+					imageLocArray.addItem(moveToY);
+					bodyLocationArray.setItemAt(imageLocArray, index+1);
 					moveBody(currentX, currentY, index + 1); 
 				}
 			}
@@ -241,9 +255,12 @@
 				snakePit.addElement(bodyPart);
 				
 				snake.addItem(bodyPart);
-				imageXLoc.addItem(bodyPart.x);
-				imageYLoc.addItem(bodyPart.y);
 				
+				var imageLocArray:ArrayCollection = new ArrayCollection();
+				imageLocArray.addItem(bodyPart.x);
+				imageLocArray.addItem(bodyPart.y);
+				bodyLocationArray.addItem(imageLocArray);
+
 			}
 			
 			protected function getTailX():uint {
@@ -260,10 +277,16 @@
 				var Low:int = 0;
 				var HighY:int = (gameHeight - mittFace.height) / mittFace.width;
 				var HighX:int = (gameWidth- mittFace.width) / mittFace.width;
+				var yLocArray:ArrayCollection = new ArrayCollection();
+
+				for each (var current:ArrayCollection in bodyLocationArray) {
+					var y:Number = current.getItemAt(1) as Number;
+					yLocArray.addItem(y);
+				}
 				
 				do {
 					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;	
-				} while (mittFace.y == moneyBag.y || moneyBag.y == oldBagY)
+				} while (mittFace.y == moneyBag.y || moneyBag.y == oldBagY || yLocArray.contains(moneyBag.y))
 				
 				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
 				// score += 1;
