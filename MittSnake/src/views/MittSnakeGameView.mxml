@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		xmlns:s="library://ns.adobe.com/flex/spark" title="MittSnakeGameView"
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:shapes="shapes.*"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
-
-		creationComplete="initApp()">
+		creationComplete="initApp()" currentState="PlayState" title="MittSnakeGameView">
 	<s:layout>
 		<s:VerticalLayout/>
 	</s:layout>
@@ -30,6 +29,8 @@
 			private var snake:ArrayCollection = new ArrayCollection();
 			private var imageXLoc:ArrayCollection = new ArrayCollection();
 			private var imageYLoc:ArrayCollection = new ArrayCollection();
+			private var score:int = 0;
+			private var startDelay:uint = 0;
 			
 //			private var moneyBagByteArray:ByteArray = new ByteArray();
 //			
@@ -39,6 +40,21 @@
 			
 			protected function initApp():void
 			{
+				startDelay = 0;
+				
+				// constrain height and width of snake pit
+				mittFace.x = 0;
+				mittFace.y = 0;
+				moneyBag.x = 0;
+				moneyBag.y = 0;
+				var startHeight:uint = snakePit.height;
+				var startWidth:uint = snakePit.width;
+				snakePit.maxHeight = startHeight;
+				snakePit.maxWidth = startWidth;
+				
+				// set the game height/width
+				gameWidth = snakePit.width;
+				gameHeight = snakePit.height;
 				
 				// do some image optimization for the body part money bags
 				moneyBag.cacheAsBitmapMatrix = moneyBag.transform.concatenatedMatrix;
@@ -50,12 +66,7 @@
 				bodyPartImg.cacheAsBitmapMatrix = bodyPartImg.transform.concatenatedMatrix;
 				bodyPartImg.cacheAsBitmap = true;
 			
-				
-				// TODO initialize game score
-				
-     			gameWidth = snakePit.width;
-				gameHeight = snakePit.height;
-				
+				// randomly place the mitt face and money bag
 				var Low:int = 0;
 				var HighY:int = (gameHeight - mittFace.height) / mittFace.width;
 				var HighX:int = (gameWidth - mittFace.width) / mittFace.width;
@@ -67,10 +78,6 @@
 				} while (mittFace.y == moneyBag.y)
 					
 				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;				
-				
-				// TODO this is here for testing. remove
-				mittFace.x = 0;
-				mittFace.y = 0;
 				
 				// start in random direction
 				var rand:int = Math.floor(Math.random()*(1+4-1)+1);
@@ -88,8 +95,6 @@
 						direction = "left";
 						break;
 				}
-				// TODO this is here for testing. remove
-				direction = "right"; 
 				
 				stage.frameRate = speed;
 //				stage.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
@@ -118,12 +123,24 @@
 //			}
 			
 			protected function onEnterFrame(event:Event):void {
-				
-				if (gameOver == true) {
-					// handle game over
-					gameOverLabel.visible = true;
+				// wait a few frames before game starts
+				if (startDelay < 3) {
+					startDelay++;
 					return;
 				}
+				// handle game over
+				if (gameOver == true) {
+					// set game over label
+					gameOverLabel.text = "Game Over!\n" + 
+										"Net Worth:  $" + score + " Million\n"+
+										"Click to Play Again";
+					// display game over state
+					this.currentState = "GameOver";
+					return;
+				}
+				
+				// update the score label in the title bar
+				scoreBar.text = "Net Worth: $" + score + " Million";
 				
 				// Save location of Mitt's face on enter frame
 				var initMittFaceX:uint = mittFace.x;
@@ -180,10 +197,14 @@
 				if (mittFace.y == moneyBag.y && mittFace.x == moneyBag.x) {
 					addPartToBody(initTailX, initTailY);
 					moveMoney();
+					// update the score label in the title bar
+					score += 1;
+					scoreBar.text = "Net Worth: $" + score + " Million";
 				}
 		    		
 				
 			}
+			
 			
 			protected function moveBody(moveToX:uint, moveToY:uint, index:uint):void {
 				if(index >= snake.length - 1) {
@@ -200,18 +221,11 @@
 				}
 			}
 			
-			protected function addPartToBody(tailX:uint, tailY:uint):void {
-//				var bodyPart:Image = new Image();
-//				bodyPart.source = "assets/moneyBag.png";
-//				// do some caching
-//				bodyPart.cacheAsBitmapMatrix = bodyPart.transform.concatenatedMatrix;
-//				bodyPart.cacheAsBitmap = true;
-				
+			protected function addPartToBody(tailX:uint, tailY:uint):void {				
 				var buffer:BitmapData = new BitmapData ( bodyPartImg.width, bodyPartImg.height, true);
 				buffer.draw(bodyPartImg);
 				
 				var bodyPartBitmap:Bitmap = new Bitmap(buffer);
-				trace("body part width: " + bodyPartBitmap.width);
 				
 				var bodyPart:Image = new Image();
 				bodyPart.source = bodyPartBitmap;
@@ -229,7 +243,7 @@
 				snake.addItem(bodyPart);
 				imageXLoc.addItem(bodyPart.x);
 				imageYLoc.addItem(bodyPart.y);
-
+				
 			}
 			
 			protected function getTailX():uint {
@@ -289,21 +303,46 @@
 			
 		]]>
 	</fx:Script>
+	<s:states>
+		<s:State name="PlayState"/>
+		<s:State name="GameOver"/>
+	</s:states>
 	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
+	<s:titleContent>
+		<s:Label id="scoreBar" width="578" color="#FFFFFF" fontFamily="_sans" fontSize="22"
+				 text="Net Worth:  $0 Million" textAlign="left" verticalAlign="middle"
+				 text.GameOver="Game Over"/>
+	</s:titleContent>
 	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
-		<s:Group width="100%" height="90%" id="snakePit">
-			<s:Image width="30" height="30" source="@Embed('assets/mittFace.png')" id="mittFace"/>
-			<s:Image width="30" height="30" source="@Embed('assets/moneyBag.png')" id="moneyBag" />
+		<s:Group id="snakePit" width="100%" height="90%"
+				 height.GameOver="100%">
+			<s:Image id="mittFace" includeIn="PlayState" x="107" y="36" width="30" height="30"
+					 depth="999" source="@Embed('assets/mittFace.png')"/>
+			<s:Image id="moneyBag" includeIn="PlayState" x="107" y="113" width="30" height="30"
+					 source="@Embed('assets/moneyBag.png')"/>
 			<s:Image visible="false" source="@Embed('assets/moneyBag.png')" id="bodyPartImg" />
 			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
-			<s:Label x="0" y="0" text="Game Over" visible="false" id="gameOverLabel"/>
+			<s:Label id="gameOverLabel" 
+					 visible="false" 
+					 width.PlayState="0" 
+					 height.PlayState="0"
+					 backgroundColor="#393939" 
+					 color="#EFEFEF" depth="1000"
+					 fontFamily="Courier New" 
+					 fontSize="20" 
+					 textAlign="center"
+					 verticalAlign="middle"
+					 visible.GameOver="true" 
+					 width.GameOver="100%" 
+					 height.GameOver="100%"
+					 click="navigator.popView();navigator.pushView(MittSnakeGameView)"/>
 		</s:Group>
-		<s:TileGroup width="35%" horizontalAlign="center" requestedColumnCount="1"
-					 requestedRowCount="2" verticalAlign="middle" paddingBottom="5">
+		<s:TileGroup includeIn="PlayState" width="35%" horizontalAlign="center" paddingBottom="5"
+					 requestedColumnCount="1" requestedRowCount="2" verticalAlign="middle">
 			<s:Button id="upButton" width="70" label="Up" click="upButton_clickHandler(event)"/>
 			<s:HGroup>
 				<s:Button id="leftButton" width="70" label="Left"
