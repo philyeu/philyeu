@@ -107,7 +107,7 @@
 				imageLocArray.addItem(5000);
 				imageLocArray.addItem(5000);
 				bodyLocationArray.addItem(imageLocArray);
-				
+
 				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			}
 
@@ -127,7 +127,7 @@
 //					direction = "right";
 //				}
 //			}
-			
+
 			protected function onEnterFrame(event:Event):void {
 				// wait a few frames before game starts
 				if (startDelay < 3) {
@@ -199,6 +199,8 @@
 					gameOverLabel.text = "Game Over!\n" + 
 						"Net Worth:  $" + score + " Million\n"+
 						"Click to Play Again";
+					// reset frame rate
+					stage.frameRate = 32;
 					// display game over state
 					this.currentState = "GameOver";
 					mittFace.removeEventListener(Event.ENTER_FRAME, onEnterFrame, false);
@@ -336,16 +338,19 @@
 	</fx:Declarations>
 	<s:titleContent>
 		<s:Label id="scoreBar" width="578" color="#FFFFFF" fontFamily="_sans" fontSize="22"
-				 text="Net Worth:  $0 Million" textAlign="left" verticalAlign="middle"
-				 text.GameOver="Game Over"/>
+				 text="Net Worth: $0 Million" textAlign="left" verticalAlign="middle"
+				 text.GameOver="Game Over"
+				 width.PlayState="100%"/>
 	</s:titleContent>
 	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
 		<s:Group id="snakePit" width="100%" height="90%"
 				 height.GameOver="100%">
-			<s:Image id="mittFace" includeIn="PlayState" x="107" y="36" width="30" height="30"
-					 depth="999" source="@Embed('assets/mittFace.png')"/>
-			<s:Image id="moneyBag" includeIn="PlayState" x="107" y="113" width="30" height="30"
+			<s:SWFLoader visible="true"  id="mittFace" width="30" height="30" includeIn="PlayState" x="0" y="0" 
+						 depth="999" source="@Embed('assets/mittChomping.swf')"/>
+			<!--<s:Image id="mittFace" includeIn="PlayState" x="107" y="36" width="30" height="30"
+					 depth="999" source="@Embed('assets/mittFace.png')"/>-->
+			<s:Image id="moneyBag" includeIn="PlayState" x="148" y="270" width="30" height="30"
 					 source="@Embed('assets/moneyBag.png')"/>
 			<s:Image visible="false" source="@Embed('assets/moneyBag.png')" id="bodyPartImg" />
 			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
