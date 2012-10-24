@@ -3,13 +3,15 @@
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:shapes="shapes.*"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
-		creationComplete="initApp()" currentState="PlayState" title="MittSnakeGameView">
+		creationComplete="initApp()" currentState="{data.name}" title="MittSnakeGameView">
 	<s:layout>
 		<s:VerticalLayout/>
 	</s:layout>
 	
 	<fx:Script>
 		<![CDATA[
+			import flash.utils.flash_proxy;
+			
 			import flashx.textLayout.formats.Float;
 			
 			import mx.collections.ArrayCollection;
@@ -135,9 +137,6 @@
 					return;
 				}
 				
-				// update the score label in the title bar
-				scoreBar.text = "Net Worth: $" + score + " Million";
-				
 				// Save location of Mitt's face on enter frame
 				var initMittFaceX:uint = mittFace.x;
 				var initMittFaceY:uint = mittFace.y;
@@ -196,9 +195,22 @@
 				// handle game over
 				if (gameOver == true) {
 					// set game over label
-					gameOverLabel.text = "Game Over!\n" + 
-						"Net Worth:  $" + score + " Million\n"+
-						"Click to Play Again";
+					if(this.currentState == "MoneyBagsState") {
+						gameOverLabel.text = "Game Over!\n" + 
+							"Net Worth:  $" + score + " Million\n"+
+							"Click to Play Again";
+					}
+					if(this.currentState == "BinderState" && score != 1) {
+						gameOverLabel.text = "Game Over!\n" + 
+						    score + " Women in Binders\n" +
+							"\nClick to Play Again";
+					}
+					if(this.currentState == "BinderState" && score == 1) {
+						gameOverLabel.text = "Game Over!\n" + 
+							score + " Woman in a Binder\n" +
+						"\nClick to Play Again";
+					}
+					
 					// reset frame rate
 					stage.frameRate = 32;
 					// display game over state
@@ -215,8 +227,17 @@
 					addPartToBody(initTailX, initTailY);
 					moveMoney();
 					// update the score label in the title bar
-					score += 1;
-					scoreBar.text = "Net Worth: $" + score + " Million";
+					score++;
+					// update the score label in the title bar
+					if(this.currentState == "MoneyBagsState") {
+						scoreBar.text = "Net Worth: $" + score + " Million";
+					}
+					if(this.currentState == "BinderState" && score == 1) {
+						scoreBar.text = score + " Woman in a Binder";
+					}
+					if(this.currentState == "BinderState" && score != 1) {
+						scoreBar.text = score + " Women in Binders";
+					}
 				}
 			}
 			
@@ -329,7 +350,8 @@
 		]]>
 	</fx:Script>
 	<s:states>
-		<s:State name="PlayState"/>
+		<s:State name="MoneyBagsState"/>
+		<s:State name="BinderState"/>
 		<s:State name="GameOver"/>
 	</s:states>
 	
@@ -338,26 +360,31 @@
 	</fx:Declarations>
 	<s:titleContent>
 		<s:Label id="scoreBar" width="578" color="#FFFFFF" fontFamily="_sans" fontSize="22"
-				 text="Net Worth: $0 Million" textAlign="left" verticalAlign="middle"
+				 text.MoneyBagsState="Net Worth: $0 Million" textAlign="left" verticalAlign="middle"
+				 text.BinderState="0 Women in Binders"
 				 text.GameOver="Game Over"
-				 width.PlayState="100%"/>
+				 width.MoneyBagsState="100%"
+				 width.BinderState="100%"/>
 	</s:titleContent>
 	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
 		<s:Group id="snakePit" width="100%" height="90%"
-				 height.GameOver="100%">
-			<s:SWFLoader visible="true"  id="mittFace" width="30" height="30" includeIn="PlayState" x="0" y="0" 
+				 height.GameOver="100%"> 
+			<s:SWFLoader visible="true"  id="mittFace" width="30" height="30" x="0" y="0" 
 						 depth="999" source="@Embed('assets/mittChomping.swf')"/>
-			<!--<s:Image id="mittFace" includeIn="PlayState" x="107" y="36" width="30" height="30"
-					 depth="999" source="@Embed('assets/mittFace.png')"/>-->
-			<s:Image id="moneyBag" includeIn="PlayState" x="148" y="270" width="30" height="30"
-					 source="@Embed('assets/moneyBag.png')"/>
-			<s:Image visible="false" source="@Embed('assets/moneyBag.png')" id="bodyPartImg" />
-			<!-- <shapes:MySquare x="100" y="100" id="square"/> -->
+			<!--<s:Image id="mittFace" x="107" y="36" width="30" height="30"
+					 depth="999" source="@Embed('assets/mittFace.png')"/> -->
+			<s:Image id="moneyBag" x="148" y="270" width="30" height="30"
+					 source.MoneyBagsState="@Embed('assets/moneyBag.png')"
+					 source.BinderState="@Embed('assets/woman.png')"/>
+			<s:Image id="bodyPartImg" visible="false" source.MoneyBagsState="@Embed('assets/moneyBag.png')"
+					 source.BinderState="@Embed('assets/binder.png')"  />
 			<s:Label id="gameOverLabel" 
 					 visible="false" 
-					 width.PlayState="0" 
-					 height.PlayState="0"
+					 width.BinderState="0"
+					 height.BinderState="0"
+					 width.MoneyBagsState="0" 
+					 height.MoneyBagsState="0"
 					 backgroundColor="#393939" 
 					 color="#EFEFEF" depth="1000"
 					 fontFamily="Courier New" 
@@ -367,9 +394,9 @@
 					 visible.GameOver="true" 
 					 width.GameOver="100%" 
 					 height.GameOver="100%"
-					 click="navigator.popView();navigator.pushView(MittSnakeGameView)"/>
+					 click="navigator.popView();navigator.pushView(MittSnakeGameView, data)"/>
 		</s:Group>
-		<s:TileGroup includeIn="PlayState" width="35%" horizontalAlign="center" paddingBottom="5"
+		<s:TileGroup width="35%" horizontalAlign="center" paddingBottom="5"
 					 requestedColumnCount="1" requestedRowCount="2" verticalAlign="middle">
 			<s:Button id="upButton" width="70" label="Up" click="upButton_clickHandler(event)"/>
 			<s:HGroup>
