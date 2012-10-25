@@ -1,31 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark"
-		frameRate="3" textAlign="center">
+		backgroundColor="#EFEFEF" creationComplete="initHome()" currentState="MoneyBagsState"
+		textAlign="center">
 	
 	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:titleContent>
-		<s:Label width="100%" height="100%" color="#FFFFFF" text="Mitt$nake" textAlign="center"
-				 verticalAlign="middle"/>
-	</s:titleContent>
 	<s:states>
 		<s:State id="money" name="MoneyBagsState"/>
 		<s:State id="binder" name="BinderState"/>
 	</s:states>
+	<s:titleContent>
+		<s:Label width="100%" height="100%" color="#F7F7F7" fontFamily="Courier New" fontSize="21"
+				 fontWeight="normal" text="mitt$nake&#xd;" textAlign="center" verticalAlign="middle"/>
+	</s:titleContent>
 	
-	<s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">       
-		<!--<s:SWFLoader id="mittFace" x="105" y="130" width="110" height="153"
-		source="@Embed('assets/mittSlowChomp.swf')"/>-->
+	<s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">  
+		<s:HGroup height="50" verticalAlign="middle">
+			<s:SWFLoader width="30" height="30" source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+		</s:HGroup>
+		<s:Image width="80%" height="30%" scaleMode="letterbox" smooth="true"
+				 smoothingQuality="default" source="@Embed('assets/logo.png')"/>
+		<s:Label color="#373737" fontFamily="Courier New" text="choose game mode:"/>
 		<s:Spacer width="10" height="10"/>
+		<s:HGroup width="100%" horizontalAlign="center">
+			<s:VGroup width="45%">
+				<s:Image width="100%" height="80"
+						 click="navigator.pushView(MittSnakeGameView, money)" scaleMode="letterbox"
+						 smooth="true" smoothingQuality="default"
+						 source="@Embed('assets/moneyBag.png')" styleName="next"/>
+				<s:Label width="100%" fontFamily="Courier New" text="money"/>
+			</s:VGroup>
+			
+			<s:Label height="100%" fontFamily="Courier New" fontSize="11" text="-or-"
+					 verticalAlign="middle"/>
+			<s:VGroup width="45%">
+				<s:Image width="100%" height="80"
+						 click="navigator.pushView(MittSnakeGameView, binder)" scaleMode="letterbox"
+						 smooth="true" smoothingQuality="default" source="@Embed('assets/binder.png')"
+						 styleName="next"/>
+				<s:Label width="100%" fontFamily="Courier New" text="binders"/>
+			</s:VGroup>
+			
+		</s:HGroup>
 		<s:Spacer width="10" height="10"/>
-		<s:Label text="Mitt Snake v 0.0.0"/>
-		<s:Label text="Choose Game Mode"/>
-		<s:Button width="30%" label="Moneybags" click="navigator.pushView(MittSnakeGameView, money)" styleName="next"/>
-		<s:Button width="30%" label="Binders" click="navigator.pushView(MittSnakeGameView, binder)" styleName="next"/>   
+		<s:HGroup height="50" verticalAlign="middle">
+			<s:SWFLoader width="30" height="30" source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+			<s:SWFLoader width="30" height="30"
+						 source="@Embed('assets/mittSlowChomp.swf')"/>
+		</s:HGroup>
 	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.Image;
+			private function initHome():void 
+			{		
+//				stage.autoOrients = false;
+//				stage.setOrientation(StageOrientation.DEFAULT);
+//				stage.setAspectRatio(StageAspectRatio.PORTRAIT);
+//				stage.frameRate = 10;
+			}
+			
+		]]>
+	</fx:Script>
 	
 	
 </s:View>

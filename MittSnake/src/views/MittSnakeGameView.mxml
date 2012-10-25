@@ -3,10 +3,8 @@
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:shapes="shapes.*"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
-		creationComplete="initApp()" currentState="{data.name}" title="MittSnakeGameView">
-	<s:layout>
-		<s:VerticalLayout/>
-	</s:layout>
+		creationComplete="initApp()" currentState="{data.name}" title="MittSnakeGameView"
+		backgroundColor.MoneyBagsState="#EFEFEF">
 	
 	<fx:Script>
 		<![CDATA[
@@ -32,19 +30,23 @@
 			private var score:int = 0;
 			private var startDelay:uint = 0;
 			
-//			private var moneyBagByteArray:ByteArray = new ByteArray();
-//			
-//			private var myLoader:Loader = new Loader();
-//			
-//			private var myEncoder:PNGEncoder = new PNGEncoder();
 			
 			protected function initApp():void
-			{
+			{				
+				// lock portrait orientation
+				this.stage.autoOrients = false;
+				this.stage.setOrientation(StageOrientation.DEFAULT);
+				this.stage.setAspectRatio(StageAspectRatio.PORTRAIT);
+					
+				// add event listeners
+				this.addEventListener(TransformGestureEvent.GESTURE_SWIPE,handleSwipe);
+				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+				
 				// init snake pit height and width
-				//trace("width: " + this.width);
-				//trace("height: " + this.height);
-				//snakePit.height = this.height - navigation.height - ((this.height - navigation.height) % mittFace.width);
-				//snakePit.width = this.width - this.width % mittFace.width;
+//				trace("width: " + this.width);
+//				trace("height: " + this.height);
+//				snakePit.height = this.height - navigation.height - ((this.height - navigation.height) % mittFace.width);
+//				snakePit.width = this.width - this.width % mittFace.width;
 				
 				startDelay = 0;
 				
@@ -103,32 +105,30 @@
 				}
 				
 				stage.frameRate = speed;
-//				stage.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
 				snake.addItem(mittFace);
 				var imageLocArray:ArrayCollection = new ArrayCollection();
 				imageLocArray.addItem(5000);
 				imageLocArray.addItem(5000);
 				bodyLocationArray.addItem(imageLocArray);
-
-				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			}
 
 			/* should add key listening for desktop use later */ 
-//			protected function reportKeyDown(event:KeyboardEvent):void {
-//				trace("KEY DOWN");
-//				if(event.charCode == Keyboard.UP) {
-//					direction = "up";
-//				}
-//				if(event.charCode == Keyboard.DOWN) {
-//					direction = "down";
-//				}
-//				if(event.charCode == Keyboard.LEFT) {
-//					direction = "left";
-//				}
-//				if(event.charCode == Keyboard.RIGHT) {
-//					direction = "right";
-//				}
-//			}
+			protected function reportKeyDown(event:KeyboardEvent):void {
+				trace("KEY DOWN");
+				if(event.charCode == Keyboard.UP) {
+					direction = "up";
+				}
+				if(event.charCode == Keyboard.DOWN) {
+					direction = "down";
+				}
+				if(event.charCode == Keyboard.LEFT) {
+					direction = "left";
+				}
+				if(event.charCode == Keyboard.RIGHT) {
+					direction = "right";
+				}
+			}
 
 			protected function onEnterFrame(event:Event):void {
 				// wait a few frames before game starts
@@ -346,7 +346,37 @@
 				direction = "right";
 			}
 			
+			protected function handleSwipe(event:TransformGestureEvent):void
+			{
+				trace("handleSwipe: " + event.offsetX);
+				
+				// if swipe to the right
+				if (event.offsetX == 1)
+				{
+					previousDirection = direction;
+					direction = "right";
+				}
+				// if swipe to the left
+				else if (event.offsetX == -1)
+				{
+					previousDirection = direction;
+					direction = "left";
+				}
+				// if swipe up
+				if (event.offsetY == -1)
+				{
+					previousDirection = direction;
+					direction = "up";
+				}
+				// if swipe down
+				else if (event.offsetY == 1)
+				{
+					previousDirection = direction;
+					direction = "down";
+				}
+			}
 			
+				
 		]]>
 	</fx:Script>
 	<s:states>
@@ -360,15 +390,19 @@
 	</fx:Declarations>
 	<s:titleContent>
 		<s:Label id="scoreBar" width="578" color="#FFFFFF" fontFamily="_sans" fontSize="22"
-				 text.MoneyBagsState="Net Worth: $0 Million" textAlign="left" verticalAlign="middle"
+				 textAlign="left" verticalAlign="middle"
+				 width.BinderState="100%" height.BinderState="100%"
+				 fontFamily.BinderState="Courier New" fontSize.BinderState="21"
 				 text.BinderState="0 Women in Binders"
-				 text.GameOver="Game Over"
-				 width.MoneyBagsState="100%"
-				 width.BinderState="100%"/>
+				 width.GameOver="100%" height.GameOver="100%" fontFamily.GameOver="Courier New"
+				 fontSize.GameOver="21" text.GameOver="Game Over"
+				 width.MoneyBagsState="100%" height.MoneyBagsState="100%"
+				 fontFamily.MoneyBagsState="Courier New" fontSize.MoneyBagsState="21"
+				 fontWeight.MoneyBagsState="normal" text.MoneyBagsState="Net Worth: $0 Million"/>
 	</s:titleContent>
 	
 	<s:VGroup width="100%" height="100%" horizontalAlign="center">
-		<s:Group id="snakePit" width="100%" height="90%"
+		<s:Group id="snakePit" width="100%" height="100%"
 				 height.GameOver="100%"> 
 			<s:SWFLoader visible="true"  id="mittFace" width="30" height="30" x="0" y="0" 
 						 depth="999" source="@Embed('assets/mittChomping.swf')"/>
@@ -396,6 +430,7 @@
 					 height.GameOver="100%"
 					 click="navigator.popView();navigator.pushView(MittSnakeGameView, data)"/>
 		</s:Group>
+		<!--
 		<s:TileGroup width="35%" horizontalAlign="center" paddingBottom="5"
 					 requestedColumnCount="1" requestedRowCount="2" verticalAlign="middle">
 			<s:Button id="upButton" width="70" label="Up" click="upButton_clickHandler(event)"/>
@@ -407,6 +442,6 @@
 				<s:Button id="rightButton" width="70" label="Right"
 						  click="rightButton_clickHandler(event)"/>
 			</s:HGroup>	
-		</s:TileGroup>
+		</s:TileGroup>-->
 	</s:VGroup>
 </s:View>
