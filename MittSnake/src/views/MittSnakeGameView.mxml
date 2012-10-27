@@ -417,7 +417,7 @@
 			<s:Image id="moneyBag" width="30" height="30"
 					 source.MoneyBagsState="@Embed('assets/moneyBag.png')"
 					 source.BinderState="@Embed('assets/woman.png')"/>
-			<s:Image id="bodyPartImg" width="30" height="30" visible="false" 
+			<s:Image id="bodyPartImg" width="100" height="100" visible="false" 
 					 source.MoneyBagsState="@Embed('assets/moneyBag.png')"
 					 source.BinderState="@Embed('assets/binder.png')"  />
 			<s:Label id="gameOverLabel" 
