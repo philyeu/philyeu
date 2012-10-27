@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark"
-		backgroundColor="#EFEFEF" creationComplete="initHome()"
-		textAlign="center">
+		backgroundColor="#EFEFEF"
+		textAlign="center" xmlns:mx="library://ns.adobe.com/flex/mx">
 	
 	
 	<fx:Declarations>
@@ -16,7 +16,6 @@
 		<s:Label width="100%" height="100%" color="#F7F7F7" fontFamily="Courier New" fontSize="21"
 				 fontWeight="normal" text="mitt$nake&#xd;" textAlign="center" verticalAlign="middle"/>
 	</s:titleContent>
-	
 	<s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" id="container">  
 		<s:HGroup height="50" verticalAlign="middle">
 			<s:SWFLoader width="30" height="30" source="@Embed('assets/mittSlowChomp.swf')"/>
@@ -59,20 +58,5 @@
 						 source="@Embed('assets/mittSlowChomp.swf')"/>
 		</s:HGroup>
 	</s:VGroup>
-	
-	<fx:Script>
-		<![CDATA[
-			import spark.components.Image;
-			private function initHome():void 
-			{	
-//				stage.autoOrients = false;
-//				stage.setOrientation(StageOrientation.DEFAULT);
-//				stage.setAspectRatio(StageAspectRatio.PORTRAIT);
-//				stage.frameRate = 10;
-			}
-			
-		]]>
-	</fx:Script>
-	
 	
 </s:View>

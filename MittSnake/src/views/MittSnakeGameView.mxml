@@ -31,6 +31,11 @@
 			private var score:int = 0;
 			private var startDelay:uint = 0;
 			
+			// sound loading vars
+			private var req:URLRequest;
+			private var context:SoundLoaderContext = new SoundLoaderContext(200);
+			private var s:Sound;
+			
 			
 			protected function initApp():void
 			{				
@@ -199,6 +204,11 @@
 					stage.frameRate = 32;
 					// display game over state
 					this.currentState = "GameOver";
+					
+					// play game over sound
+					playSound();
+					
+					// stop looping
 					mittFace.removeEventListener(Event.ENTER_FRAME, onEnterFrame, false);
 					return;
 				}
@@ -242,7 +252,8 @@
 				}
 			}
 			
-			protected function addPartToBody(tailX:uint, tailY:uint):void {				
+			protected function addPartToBody(tailX:uint, tailY:uint):void {	
+				playSound();
 				var buffer:BitmapData = new BitmapData ( bodyPartImg.width, bodyPartImg.height, true);
 				buffer.draw(bodyPartImg);
 				
@@ -378,6 +389,29 @@
 					previousDirection = direction;
 					direction = "down";
 				}
+			}
+			
+			public function playSound():void
+			{
+				if (this.currentState == "MoneyBagsState")
+				{
+					// CC Attribution license
+					// http://www.freesound.org/people/Benboncan/sounds/91924/
+					req = new URLRequest("assets/chaching.mp3");
+				}
+				else if (this.currentState == "BinderState")
+				{
+					// CC Attribution license
+					// http://www.freesound.org/people/thanvannispen/sounds/9429/
+					req = new URLRequest("assets/scream.mp3");
+				} else if (this.currentState == "GameOver")
+				{
+					// CC Attribution license
+					// http://www.freesound.org/people/AdamWeeden/sounds/157218/
+					req = new URLRequest("assets/gameOver.mp3");
+				}
+				s = new Sound(req, context);
+				s.play();
 			}
 			
 				
