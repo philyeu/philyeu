@@ -469,7 +469,7 @@
 					 visible.GameOver="true" 
 					 width.GameOver="100%" 
 					 height.GameOver="100%"
-					 click="navigator.popView();navigator.pushView(MittSnakeHomeView)"/>
+					 click="navigator.popView();"/>
 		</s:Group>
 		<!--
 		<s:TileGroup width="35%" horizontalAlign="center" paddingBottom="5"
