@@ -4,7 +4,8 @@
 		xmlns:shapes="shapes.*"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
 		creationComplete="initApp()" currentState="{data.name}" title="MittSnakeGameView"
-		backgroundColor.MoneyBagsState="#EFEFEF">
+		backgroundColor.MoneyBagsState="#EFEFEF"
+		backgroundColor.BinderState="#EFEFEF">
 	
 	<fx:Script>
 		<![CDATA[
@@ -40,6 +41,7 @@
 					
 				// add event listeners
 				this.addEventListener(TransformGestureEvent.GESTURE_SWIPE,handleSwipe);
+				this.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
 				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 				
 				// init snake pit height and width
@@ -105,29 +107,11 @@
 				}
 				
 				stage.frameRate = speed;
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
 				snake.addItem(mittFace);
 				var imageLocArray:ArrayCollection = new ArrayCollection();
 				imageLocArray.addItem(5000);
 				imageLocArray.addItem(5000);
 				bodyLocationArray.addItem(imageLocArray);
-			}
-
-			/* should add key listening for desktop use later */ 
-			protected function reportKeyDown(event:KeyboardEvent):void {
-				trace("KEY DOWN");
-				if(event.charCode == Keyboard.UP) {
-					direction = "up";
-				}
-				if(event.charCode == Keyboard.DOWN) {
-					direction = "down";
-				}
-				if(event.charCode == Keyboard.LEFT) {
-					direction = "left";
-				}
-				if(event.charCode == Keyboard.RIGHT) {
-					direction = "right";
-				}
 			}
 
 			protected function onEnterFrame(event:Event):void {
@@ -198,17 +182,17 @@
 					if(this.currentState == "MoneyBagsState") {
 						gameOverLabel.text = "Game Over!\n" + 
 							"Net Worth:  $" + score + " Million\n"+
-							"Click to Play Again";
+							"Click to Continue";
 					}
 					if(this.currentState == "BinderState" && score != 1) {
 						gameOverLabel.text = "Game Over!\n" + 
 						    score + " Women in Binders\n" +
-							"\nClick to Play Again";
+							"\nClick to Continue";
 					}
 					if(this.currentState == "BinderState" && score == 1) {
 						gameOverLabel.text = "Game Over!\n" + 
 							score + " Woman in a Binder\n" +
-						"\nClick to Play Again";
+						"\nClick to Continue";
 					}
 					
 					// reset frame rate
@@ -316,34 +300,54 @@
 				
 			}
 			
-			protected function upButton_clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				previousDirection = direction;
-				direction = "up";
-			}
+//			protected function upButton_clickHandler(event:MouseEvent):void
+//			{
+//				// TODO Auto-generated method stub
+//				previousDirection = direction;
+//				direction = "up";
+//			}
+//			
+//			protected function downButton_clickHandler(event:MouseEvent):void
+//			{
+//				// TODO Auto-generated method stub
+//				previousDirection = direction;
+//				direction = "down";
+//				
+//			}
+//			
+//			protected function leftButton_clickHandler(event:MouseEvent):void
+//			{
+//				// TODO Auto-generated method stub
+//				previousDirection = direction;
+//				direction = "left";
+//				
+//			}
+//			
+//			protected function rightButton_clickHandler(event:MouseEvent):void
+//			{
+//				// TODO Auto-generated method stub
+//				previousDirection = direction;
+//				direction = "right";
+//			}
 			
-			protected function downButton_clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				previousDirection = direction;
-				direction = "down";
-				
-			}
-			
-			protected function leftButton_clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				previousDirection = direction;
-				direction = "left";
-				
-			}
-			
-			protected function rightButton_clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				previousDirection = direction;
-				direction = "right";
+			/* should add key listening for desktop use later */ 
+			protected function reportKeyDown(event:KeyboardEvent):void {
+				if(event.keyCode == Keyboard.UP) {
+					previousDirection = direction;
+					direction = "up";
+				}
+				if(event.keyCode == Keyboard.DOWN) {
+					previousDirection = direction;
+					direction = "down";
+				}
+				if(event.keyCode == Keyboard.LEFT) {
+					previousDirection = direction;
+					direction = "left";
+				}
+				if(event.keyCode == Keyboard.RIGHT) {
+					previousDirection = direction;
+					direction = "right";
+				}
 			}
 			
 			protected function handleSwipe(event:TransformGestureEvent):void
@@ -389,29 +393,32 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:titleContent>
-		<s:Label id="scoreBar" width="578" color="#FFFFFF" fontFamily="_sans" fontSize="22"
+		<s:Label id="scoreBar" color="#FFFFFF" fontFamily="_sans" fontSize="22"
 				 textAlign="left" verticalAlign="middle"
 				 width.BinderState="100%" height.BinderState="100%"
 				 fontFamily.BinderState="Courier New" fontSize.BinderState="21"
 				 text.BinderState="0 Women in Binders"
-				 width.GameOver="100%" height.GameOver="100%" fontFamily.GameOver="Courier New"
-				 fontSize.GameOver="21" text.GameOver="Game Over"
+				 
+				 width.GameOver="100%" height.GameOver="100%" 
+				 fontFamily.GameOver="Courier New" fontSize.GameOver="21" 
+				 text.GameOver="Game Over"
+				 
 				 width.MoneyBagsState="100%" height.MoneyBagsState="100%"
 				 fontFamily.MoneyBagsState="Courier New" fontSize.MoneyBagsState="21"
 				 fontWeight.MoneyBagsState="normal" text.MoneyBagsState="Net Worth: $0 Million"/>
 	</s:titleContent>
 	
-	<s:VGroup width="100%" height="100%" horizontalAlign="center">
-		<s:Group id="snakePit" width="100%" height="100%"
-				 height.GameOver="100%"> 
-			<s:SWFLoader visible="true"  id="mittFace" width="30" height="30" x="0" y="0" 
+	<s:VGroup width="100%" height="100%" horizontalAlign="center" id="container">
+		<s:Group id="snakePit" width="100%" height="100%"> 
+			<s:SWFLoader visible="true"  id="mittFace" width="30" height="30" 
 						 depth="999" source="@Embed('assets/mittChomping.swf')"/>
 			<!--<s:Image id="mittFace" x="107" y="36" width="30" height="30"
 					 depth="999" source="@Embed('assets/mittFace.png')"/> -->
-			<s:Image id="moneyBag" x="148" y="270" width="30" height="30"
+			<s:Image id="moneyBag" width="30" height="30"
 					 source.MoneyBagsState="@Embed('assets/moneyBag.png')"
 					 source.BinderState="@Embed('assets/woman.png')"/>
-			<s:Image id="bodyPartImg" visible="false" source.MoneyBagsState="@Embed('assets/moneyBag.png')"
+			<s:Image id="bodyPartImg" width="30" height="30" visible="false" 
+					 source.MoneyBagsState="@Embed('assets/moneyBag.png')"
 					 source.BinderState="@Embed('assets/binder.png')"  />
 			<s:Label id="gameOverLabel" 
 					 visible="false" 
@@ -428,7 +435,7 @@
 					 visible.GameOver="true" 
 					 width.GameOver="100%" 
 					 height.GameOver="100%"
-					 click="navigator.popView();navigator.pushView(MittSnakeGameView, data)"/>
+					 click="navigator.popView();navigator.pushView(MittSnakeHomeView)"/>
 		</s:Group>
 		<!--
 		<s:TileGroup width="35%" horizontalAlign="center" paddingBottom="5"
