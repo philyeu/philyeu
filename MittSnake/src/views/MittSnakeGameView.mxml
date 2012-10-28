@@ -3,7 +3,7 @@
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:shapes="shapes.*"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
-		creationComplete="initApp()" currentState="{data.name}" title="MittSnakeGameView"
+		creationComplete="initApp(event)" currentState="{data.name}" title="MittSnakeGameView"
 		backgroundColor.MoneyBagsState="#EFEFEF"
 		backgroundColor.BinderState="#EFEFEF">
 	
@@ -15,6 +15,7 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
 			import mx.graphics.codec.JPEGEncoder;
 			import mx.graphics.codec.PNGEncoder;
 			
@@ -37,8 +38,10 @@
 			private var s:Sound;
 			
 			
-			protected function initApp():void
+			protected function initApp(event:FlexEvent):void
 			{				
+				NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, onDeactivateApp);
+				
 				// lock portrait orientation
 				this.stage.autoOrients = false;
 				this.stage.setOrientation(StageOrientation.DEFAULT);
@@ -117,6 +120,11 @@
 				imageLocArray.addItem(5000);
 				imageLocArray.addItem(5000);
 				bodyLocationArray.addItem(imageLocArray);
+			}
+			
+			protected function onDeactivateApp(event:Event):void
+			{
+				NativeApplication.nativeApplication.exit();
 			}
 
 			protected function onEnterFrame(event:Event):void {
