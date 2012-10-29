@@ -124,6 +124,7 @@
 			
 			protected function onDeactivateApp(event:Event):void
 			{
+				trace('deactivate fired');
 				NativeApplication.nativeApplication.exit();
 			}
 
