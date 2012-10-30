@@ -21,7 +21,7 @@
 			
 			import spark.core.SpriteVisualElement;
 			
-			private var direction:String = "up";
+			private var direction:String;
 			private var previousDirection:String;
 			private var speed:Number = 4;
 			private var gameOver:Boolean = false;
@@ -124,7 +124,6 @@
 			
 			protected function onDeactivateApp(event:Event):void
 			{
-				trace('deactivate fired');
 				NativeApplication.nativeApplication.exit();
 			}
 
@@ -287,7 +286,6 @@
 				imageLocArray.addItem(bodyPart.x);
 				imageLocArray.addItem(bodyPart.y);
 				bodyLocationArray.addItem(imageLocArray);
-
 			}
 			
 			protected function getTailX():uint {
@@ -304,51 +302,32 @@
 				var Low:int = 0;
 				var HighY:int = (gameHeight - mittFace.height) / mittFace.width;
 				var HighX:int = (gameWidth- mittFace.width) / mittFace.width;
-				var yLocArray:ArrayCollection = new ArrayCollection();
+//				var yLocArray:ArrayCollection = new ArrayCollection();
 
-				for each (var current:ArrayCollection in bodyLocationArray) {
-					var y:Number = current.getItemAt(1) as Number;
-					yLocArray.addItem(y);
-				}
+				
+				// Collision Flag
+				var collision:Boolean = false;
+				
+//				for each (var current:ArrayCollection in bodyLocationArray) {
+//					trace("315 loop");
+//					var y:Number = current.getItemAt(1) as Number;
+//					yLocArray.addItem(y);
+//				}
 				
 				do {
-					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;	
-				} while (mittFace.y == moneyBag.y || moneyBag.y == oldBagY || yLocArray.contains(moneyBag.y))
-				
-				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
-				// score += 1;
+					moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
+					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;
+					for each (var current:ArrayCollection in bodyLocationArray) {
+						var x:Number = current.getItemAt(0) as Number;
+						var y:Number = current.getItemAt(1) as Number;
+						if(mittFace.x == x && mittFace.y == y) {
+							collision = true;
+							break;
+						}
+					}
+				} while (mittFace.y == moneyBag.y || moneyBag.y == oldBagY || collision)
 				
 			}
-			
-//			protected function upButton_clickHandler(event:MouseEvent):void
-//			{
-//				// TODO Auto-generated method stub
-//				previousDirection = direction;
-//				direction = "up";
-//			}
-//			
-//			protected function downButton_clickHandler(event:MouseEvent):void
-//			{
-//				// TODO Auto-generated method stub
-//				previousDirection = direction;
-//				direction = "down";
-//				
-//			}
-//			
-//			protected function leftButton_clickHandler(event:MouseEvent):void
-//			{
-//				// TODO Auto-generated method stub
-//				previousDirection = direction;
-//				direction = "left";
-//				
-//			}
-//			
-//			protected function rightButton_clickHandler(event:MouseEvent):void
-//			{
-//				// TODO Auto-generated method stub
-//				previousDirection = direction;
-//				direction = "right";
-//			}
 			
 			/* should add key listening for desktop use later */ 
 			protected function reportKeyDown(event:KeyboardEvent):void {
@@ -372,8 +351,6 @@
 			
 			protected function handleSwipe(event:TransformGestureEvent):void
 			{
-				trace("handleSwipe: " + event.offsetX);
-				
 				// if swipe to the right
 				if (event.offsetX == 1)
 				{
