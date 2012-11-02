@@ -33,9 +33,20 @@
 			private var startDelay:uint = 0;
 			
 			// sound loading vars
-			private var req:URLRequest;
-			private var context:SoundLoaderContext = new SoundLoaderContext(200);
-			private var s:Sound;
+			// CC Attribution license
+			// http://www.freesound.org/people/Benboncan/sounds/91924/
+			[Embed(source="assets/chaching.mp3")]
+			private var moneySound:Class;
+			
+			// CC Attribution license
+			// http://www.freesound.org/people/ecfike/sounds/131408/
+			[Embed(source="assets/ohNo.mp3")]
+			private var womanSound:Class;
+			
+			// CC Attribution license
+			// http://www.freesound.org/people/AdamWeeden/sounds/157218/
+			[Embed(source="assets/gameOver.mp3")]
+			private var gameOverSound:Class;
 			
 			
 			protected function initApp(event:FlexEvent):void
@@ -51,12 +62,6 @@
 				this.addEventListener(TransformGestureEvent.GESTURE_SWIPE,handleSwipe);
 				this.addEventListener(KeyboardEvent.KEY_DOWN, reportKeyDown);
 				mittFace.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-				
-				// init snake pit height and width
-//				trace("width: " + this.width);
-//				trace("height: " + this.height);
-//				snakePit.height = this.height - navigation.height - ((this.height - navigation.height) % mittFace.width);
-//				snakePit.width = this.width - this.width % mittFace.width;
 				
 				startDelay = 0;
 				
@@ -95,7 +100,7 @@
 					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;	
 				} while (mittFace.y == moneyBag.y)
 					
-				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;				
+				moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
 				
 				// start in random direction
 				var rand:int = Math.floor(Math.random()*(1+4-1)+1);
@@ -112,6 +117,16 @@
 					case 4:
 						direction = "left";
 						break;
+				}
+				
+				if(mittFace.x < 150) {
+					direction = "right";
+				} else if (mittFace.y > gameHeight - 150) {
+					direction = "up";
+				} else if (mittFace.x > gameWidth - 150) {
+					direction = "left";
+				} else if (mittFace.y < 150) {
+					direction = "down";
 				}
 				
 				stage.frameRate = speed;
@@ -302,25 +317,16 @@
 				var Low:int = 0;
 				var HighY:int = (gameHeight - mittFace.height) / mittFace.width;
 				var HighX:int = (gameWidth- mittFace.width) / mittFace.width;
-//				var yLocArray:ArrayCollection = new ArrayCollection();
-
-				
-				// Collision Flag
-				var collision:Boolean = false;
-				
-//				for each (var current:ArrayCollection in bodyLocationArray) {
-//					trace("315 loop");
-//					var y:Number = current.getItemAt(1) as Number;
-//					yLocArray.addItem(y);
-//				}
 				
 				do {
+					// Collision Flag
+					var collision:Boolean = false;
 					moneyBag.x = Math.floor(Math.random()*(1+HighX-Low)+Low) * mittFace.width;	
 					moneyBag.y = Math.floor(Math.random()*(1+HighY-Low)+Low) * mittFace.width;
 					for each (var current:ArrayCollection in bodyLocationArray) {
 						var x:Number = current.getItemAt(0) as Number;
 						var y:Number = current.getItemAt(1) as Number;
-						if(mittFace.x == x && mittFace.y == y) {
+						if(moneyBag.x == x && moneyBag.y == y) {
 							collision = true;
 							break;
 						}
@@ -379,24 +385,18 @@
 			
 			public function playSound():void
 			{
+				var s:Sound;
 				if (this.currentState == "MoneyBagsState")
 				{
-					// CC Attribution license
-					// http://www.freesound.org/people/Benboncan/sounds/91924/
-					req = new URLRequest("assets/chaching.mp3");
+					var s:Sound = new moneySound() as Sound;	
 				}
 				else if (this.currentState == "BinderState")
 				{
-					// CC Attribution license
-					// http://www.freesound.org/people/thanvannispen/sounds/9429/
-					req = new URLRequest("assets/scream.mp3");
+					var s:Sound = new womanSound() as Sound;					
 				} else if (this.currentState == "GameOver")
 				{
-					// CC Attribution license
-					// http://www.freesound.org/people/AdamWeeden/sounds/157218/
-					req = new URLRequest("assets/gameOver.mp3");
+					var s:Sound = new gameOverSound() as Sound;
 				}
-				s = new Sound(req, context);
 				s.play();
 			}
 			
